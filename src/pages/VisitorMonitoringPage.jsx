@@ -19,8 +19,15 @@ const VisitorMonitoringPage = () => {
       const response = await api.get(endpoint);
       
       // Only include visitors with a valid clock-in time
-      const validVisitors = response.data.filter(visitor => visitor.clock_in_time);
+      // const validVisitors = response.data.filter(visitor => visitor.clock_in_time);
+      const validVisitors = response.data.visitors.filter(visitor => visitor.clock_in_time);
       setVisitors(validVisitors);
+      // if (Array.isArray(response.data)) {
+      //   const validVisitors = response.data.filter(visitor => visitor.clock_in_time);
+      //   setVisitors(validVisitors);
+      // } else {
+      //   setError('Invalid response from API. Please try again later.');
+      // }
       
     } catch (error) {
       console.error('Error fetching visitors:', error);
@@ -72,6 +79,7 @@ const VisitorMonitoringPage = () => {
               <TableCell>Company</TableCell>
               <TableCell>Clock-In Time</TableCell>
               <TableCell>Clock-Out Time</TableCell>
+              <TableCell>Total Visting Time</TableCell>
               <TableCell>Status</TableCell>
             </TableRow>
           </TableHead>
@@ -83,6 +91,7 @@ const VisitorMonitoringPage = () => {
                   <TableCell>{visitor.company_name}</TableCell>
                   <TableCell>{visitor.clock_in_time || 'N/A'}</TableCell>
                   <TableCell>{visitor.clock_out_time || 'Still visiting'}</TableCell>
+                  <TableCell>{visitor.total_time || 'Still visiting'}</TableCell>
                   <TableCell>{visitor.clock_out_time ? 'Left' : 'Still visiting'}</TableCell>
                 </TableRow>
               ))

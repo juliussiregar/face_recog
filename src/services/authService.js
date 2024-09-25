@@ -17,7 +17,7 @@ const authService = {
       console.log('Data being sent to backend:', visitorData);
       
       // Kirim data visitor tanpa base64 gambar
-      const response = await api.post('/register-visitor', visitorData, {
+      const response = await api.post('/register/visitor', visitorData, {
         headers: {
           'Content-Type': 'application/json',
         },

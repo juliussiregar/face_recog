@@ -2,7 +2,7 @@ import axios from 'axios';
 
 // Membuat instance axios dengan konfigurasi default
 const api = axios.create({
-  baseURL: process.env.REACT_APP_API_URL || 'http://127.0.0.1:5000/api', // Pastikan baseURL benar
+  baseURL: process.env.REACT_APP_API_URL+ '/api/v1' || 'http://127.0.0.1:5000/api', // Pastikan baseURL benar
   headers: {
     'Content-Type': 'application/json',
   },

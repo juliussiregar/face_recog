@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import faceRecognitionService from '../services/faceRecognitionService'; // Ensure faceRecognitionService is set up properly
+import faceRecognitionCIService from '../services/faceRecognitionService'; // Ensure faceRecognitionService is set up properly
 
 const useFaceRecognition = () => {
   const [result, setResult] = useState(null);
@@ -7,19 +7,26 @@ const useFaceRecognition = () => {
   const [error, setError] = useState(null);
 
   // Function to send screenshot to API and get the face recognition result
-  const handleFaceRecognition = async (screenshot) => {
+  const handleFaceRecognition = async (screenshot,isClockIn = true) => {
     setLoading(true);
     setError(null);
 
     try {
       // Remove base64 prefix from the screenshot (e.g., data:image/png;base64,)
       const base64Image = screenshot.replace(/^data:image\/[a-z]+;base64,/, '');
-
       // Send cleaned base64 image to the face recognition API
-      const response = await faceRecognitionService.recognize(base64Image);
+      // const response = await faceRecognitionCIService.recognize(base64Image);
+      let response;
+
+      if (isClockIn) {
+        response = await faceRecognitionCIService.recognize(base64Image);
+
+      } else {
+        response = await faceRecognitionCIService.checkout(base64Image);
+      }
 
       // Check if the response from the server contains valid face recognition result
-      if (response && response.matched) {
+      if (response ) {
         setResult(response); // Store the result in state
         return response; // Return the response to the calling component
       } else if (response && response.error) {
@@ -36,7 +43,7 @@ const useFaceRecognition = () => {
         setError('Visitor not found in the system. Please register first.');
       } else if (error.message.includes('Face not recognized')) {
         setError('Face not recognized. Please try again or contact support.');
-      } else {
+      }else {
         setError('Failed to recognize face. Please try again.');
       }
 

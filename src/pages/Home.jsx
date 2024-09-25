@@ -82,14 +82,16 @@ const Home = () => {
   };
 
   const filteredVisitors = visitors.filter(visitor => {
+    const nik = visitor.nik? visitor.nik : '';
     const fullName = visitor.full_name ? visitor.full_name.toLowerCase() : '';
     const companyName = visitor.company_name ? visitor.company_name.toLowerCase() : '';
-    const birthDate = visitor.birth_date ? visitor.birth_date : '';
+    const bornDate = visitor.born_date ? visitor.born_date : '';
     
     return (
+      nik.includes(searchKeyword) ||
       fullName.includes(searchKeyword.toLowerCase()) ||
       companyName.includes(searchKeyword.toLowerCase()) ||
-      birthDate.includes(searchKeyword)
+      bornDate.includes(searchKeyword)
     );
   });
 
@@ -123,22 +125,24 @@ const Home = () => {
           <Table>
             <TableHead>
               <TableRow>
+                <TableCell>NIK</TableCell>
                 <TableCell>Full Name</TableCell>
                 <TableCell>Company</TableCell>
                 <TableCell>Birth Date</TableCell>
-                <TableCell>Photo</TableCell>
+                <TableCell>image</TableCell>
                 <TableCell align="center">Actions</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
               {filteredVisitors.map(visitor => (
                 <TableRow key={visitor.id}>
+                  <TableCell>{visitor.nik}</TableCell>
                   <TableCell>{visitor.full_name}</TableCell>
                   <TableCell>{visitor.company_name}</TableCell>
-                  <TableCell>{visitor.birth_date}</TableCell>
+                  <TableCell>{visitor.born_date}</TableCell>
                   <TableCell>
                     <img 
-                      src={`data:image/jpeg;base64,${visitor.photo}`} 
+                      src={`data:image/jpeg;base64,${visitor.image}`} 
                       alt={visitor.full_name} 
                       width="50" 
                       height="50" 
@@ -195,18 +199,21 @@ const Home = () => {
                   {selectedVisitor.full_name}
                 </Typography>
                 <Typography variant="body2" color="text.secondary">
+                  NIK: {selectedVisitor.nik}
+                </Typography>
+                <Typography variant="body2" color="text.secondary">
                   Company: {selectedVisitor.company_name}
                 </Typography>
                 <Typography variant="body2" color="text.secondary">
-                  Birth Date: {selectedVisitor.birth_date}
+                  Birth Date: {selectedVisitor.born_date}
                 </Typography>
                 <Typography variant="body2" color="text.secondary">
-                  Created At: {selectedVisitor.date}
+                  Created At: {selectedVisitor.created_at}
                 </Typography>
                 <Box mt={2} sx={{ display: 'flex', justifyContent: 'center' }}>
                   <CardMedia
                     component="img"
-                    image={`data:image/jpeg;base64,${selectedVisitor.photo}`}
+                    image={`data:image/jpeg;base64,${selectedVisitor.image}`}
                     alt={selectedVisitor.full_name}
                     sx={{ width: 200, height: 200, borderRadius: '8px', boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)' }}
                   />

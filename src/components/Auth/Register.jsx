@@ -7,7 +7,7 @@ const Register = ({ onRegister }) => {
   const [formData, setFormData] = useState({
     nik: '',
     fullName: '',
-    birthDate: '',
+    bornDate: '',
     address: '',
     companyName: '',
     email: '',
@@ -57,7 +57,7 @@ const Register = ({ onRegister }) => {
       );
       if (detections.length > 0) {
         setIsFaceDetected(true);
-        capturePhoto();
+        captureimage();
       } else {
         setIsFaceDetected(false);
       }
@@ -76,21 +76,21 @@ const Register = ({ onRegister }) => {
     const newErrors = {};
     if (!formData.nik) newErrors.nik = 'NIK is required';
     if (!formData.fullName) newErrors.fullName = 'Full name is required';
-    if (!formData.birthDate) newErrors.birthDate = 'Birth date is required';
+    if (!formData.bornDate) newErrors.bornDate = 'Birth date is required';
     if (!formData.address) newErrors.address = 'Address is required';
     if (!formData.companyName) newErrors.companyName = 'Company name is required';
     if (!formData.email) newErrors.email = 'Email is required';
-    if (!imageSrc) newErrors.image = 'Please capture a photo';
+    if (!imageSrc) newErrors.image = 'Please capture a image';
     return newErrors;
   };
 
-  const capturePhoto = useCallback(() => {
+  const captureimage = useCallback(() => {
     if (webcamRef.current) {
       const imageSrc = webcamRef.current.getScreenshot();
       // Remove the base64 prefix
-      const photoBase64 = imageSrc.replace(/^data:image\/[a-z]+;base64,/, "");
-      setImageSrc(photoBase64);
-      console.log("Captured photo (base64):", photoBase64);
+      const imageBase64 = imageSrc.replace(/^data:image\/[a-z]+;base64,/, "");
+      setImageSrc(imageBase64);
+      console.log("Captured image (base64):", imageBase64);
     }
   }, [webcamRef]);
 
@@ -108,11 +108,11 @@ const Register = ({ onRegister }) => {
       const dataToSend = {
         nik: formData.nik,
         full_name: formData.fullName, // Use full_name as backend expects
-        birth_date: formData.birthDate,
+        born_date: formData.bornDate,
         address: formData.address,
         company_name: formData.companyName,
         email: formData.email,
-        photo: imageSrc, // Base64 photo without prefix
+        image: imageSrc, // Base64 image without prefix
       };
 
       console.log("Data sent to backend:", dataToSend);
@@ -124,7 +124,7 @@ const Register = ({ onRegister }) => {
         setFormData({
           nik: '',
           fullName: '',
-          birthDate: '',
+          bornDate: '',
           address: '',
           companyName: '',
           email: '',
@@ -202,12 +202,12 @@ const Register = ({ onRegister }) => {
         <TextField
           fullWidth
           label="Birth Date"
-          name="birthDate"
+          name="bornDate"
           type="date"
-          value={formData.birthDate}
+          value={formData.bornDate}
           onChange={handleChange}
-          error={!!errors.birthDate}
-          helperText={errors.birthDate}
+          error={!!errors.bornDate}
+          helperText={errors.bornDate}
           variant="outlined"
           margin="normal"
           InputLabelProps={{
@@ -250,7 +250,7 @@ const Register = ({ onRegister }) => {
 
         {/* Webcam and Face Detection */}
         <Box sx={{ mt: 2 }}>
-          <Typography variant="body1">Capture Visitor Photo</Typography>
+          <Typography variant="body1">Capture Visitor image</Typography>
           <Webcam
             audio={false}
             ref={webcamRef}
@@ -263,7 +263,7 @@ const Register = ({ onRegister }) => {
           />
           {modelsLoaded && isCapturing ? (
             isFaceDetected ? (
-              <Typography variant="body2" color="success.main">Face detected, capturing photo...</Typography>
+              <Typography variant="body2" color="success.main">Face detected, capturing image...</Typography>
             ) : (
               <Typography variant="body2" color="error">No face detected</Typography>
             )
@@ -273,7 +273,7 @@ const Register = ({ onRegister }) => {
           {errors.image && <Typography color="error">{errors.image}</Typography>}
           {imageSrc && (
             <Box>
-              <Typography variant="body2" gutterBottom>Captured Photo:</Typography>
+              <Typography variant="body2" gutterBottom>Captured image:</Typography>
               <img src={`data:image/png;base64,${imageSrc}`} alt="Captured" style={{ width: '100%', borderRadius: '4px' }} />
             </Box>
           )}
