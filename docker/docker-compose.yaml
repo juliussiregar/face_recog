@@ -1,0 +1,23 @@
+version: '3.7'
+
+services:
+  web:
+    image: visitorms
+    environment:
+      REACT_APP_API_URL: api-visitorms.aluesagd.com
+      TZ: Asia/Jakarta
+    restart: unless-stopped
+    ports:
+      - 3000:3000
+    networks:
+      default:
+        ipv4_address: 10.10.10.2
+    
+networks:
+  default:
+    ipam:
+      driver: default
+      config:
+        - subnet: 10.10.10.0/30
+
+  
