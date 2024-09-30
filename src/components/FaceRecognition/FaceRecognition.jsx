@@ -143,8 +143,8 @@ const FaceRecognition = ({ onClockIn = () => { }, onClockOut = () => { } }) => {
       {loading && <CircularProgress size={24} sx={{ mt: 2 }} />}
       {visitorData && (
         <Box sx={{ mt: 2, textAlign: "center" }}>
-          <Typography variant="h6">
-            {visitorData.isClockIn ? "Welcome" : "Goodbye"}, {visitorData.fullName}!
+          <Typography variant="h5">
+            {visitorData.fullName}
           </Typography>
           <Typography variant="body1">NIK: {visitorData.nik}</Typography>
           <Typography variant="body1">
