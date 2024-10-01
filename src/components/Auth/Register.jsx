@@ -183,8 +183,8 @@ const Register = ({ onRegister }) => {
           name="nik"
           value={formData.nik}
           onChange={handleChange}
-          error={!!errors.nik}
-          helperText={errors.nik}
+          error={!!errors.nik || formData.nik.length < 16 || formData.nik.length > 16}
+          helperText={errors.nik || (formData.nik.length < 16 ? 'NIK must be at least 16 characters' : 'NIK must be at most 16 characters')}
           variant="outlined"
           margin="normal"
         />
