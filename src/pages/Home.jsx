@@ -129,7 +129,7 @@ const Home = () => {
                 <TableCell>Full Name</TableCell>
                 <TableCell>Company</TableCell>
                 <TableCell>Birth Date</TableCell>
-                <TableCell>image</TableCell>
+                <TableCell>Image</TableCell>
                 <TableCell align="center">Actions</TableCell>
               </TableRow>
             </TableHead>

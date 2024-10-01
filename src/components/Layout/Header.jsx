@@ -19,7 +19,7 @@ const Header = () => {
     <AppBar position="static" color="default" elevation={2}>
       <Toolbar>
         <Typography variant="h6" color="primary" sx={{ flexGrow: 1 }}>
-          Face Recognition App
+          Visitor Management App
         </Typography>
         <Box>
           <Button
@@ -29,7 +29,7 @@ const Header = () => {
             color="primary"
             sx={{ mx: 1 }}
           >
-            Home
+            Registrasi Visitor
           </Button>
           <Button
             component={Link}
@@ -47,7 +47,7 @@ const Header = () => {
             color="primary"
             sx={{ mx: 1 }}
           >
-            Face Recognition
+            Check In / Check Out
           </Button>
           {isLoggedIn ? (
             <Button
