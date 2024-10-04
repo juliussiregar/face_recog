@@ -130,14 +130,14 @@ const FaceRecognition = ({ onClockIn = () => { }, onClockOut = () => { } }) => {
           color="primary"
           onClick={() => handleTakePicture(true)}
         >
-          Clock-in
+          Check-in
         </Button>
         <Button
           variant="contained"
           color="secondary"
           onClick={() => handleTakePicture(false)}
         >
-          Clock-out
+          Check-out
         </Button>
       </Box>
       {loading && <CircularProgress size={24} sx={{ mt: 2 }} />}
