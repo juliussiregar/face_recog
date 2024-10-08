@@ -18,9 +18,21 @@ const FaceRecognition = ({ onClockIn = () => { }, onClockOut = () => { } }) => {
   const [modelsLoaded, setModelsLoaded] = useState(false);
   const [visitorData, setVisitorData] = useState(null);
   const webcamRef = useRef(null);
-
+  const [isClockIn, setIsClockIn] = useState(false);
+  const meet_in = new Date(
+    new Date().getTime() + 60 * 60 * 1000
+  ).toLocaleTimeString('en-GB', {
+    hour: '2-digit',
+    minute: '2-digit',
+  });
+  const meet_out = new Date(
+    new Date().getTime() + 60 * 60 * 2500
+  ).toLocaleTimeString('en-GB', {
+    hour: '2-digit',
+    minute: '2-digit',
+  });
+  const time = `${meet_in} - ${meet_out}`;
   const { handleFaceRecognition } = useFaceRecognition(); // Custom hook
-
   // Load models on component mount
   useEffect(() => {
     const loadModels = async () => {
@@ -128,14 +140,19 @@ const FaceRecognition = ({ onClockIn = () => { }, onClockOut = () => { } }) => {
         <Button
           variant="contained"
           color="primary"
-          onClick={() => handleTakePicture(true)}
+          onClick={() => {
+            setIsClockIn(true);
+            handleTakePicture(true)}}
         >
           Check-in
         </Button>
         <Button
           variant="contained"
           color="secondary"
-          onClick={() => handleTakePicture(false)}
+          onClick={() => {
+            setIsClockIn(false);
+            handleTakePicture(false);
+          }}
         >
           Check-out
         </Button>
@@ -153,6 +170,16 @@ const FaceRecognition = ({ onClockIn = () => { }, onClockOut = () => { } }) => {
           <Typography variant="body1">
             Address: {visitorData.address}
           </Typography>
+          {isClockIn && (
+            <>
+              <Typography variant="body1">
+                {"Meeting Room " ?? ""}
+              </Typography>
+              <Typography variant="body1">
+                Meeting Time: {time??""}             
+               </Typography>
+            </>
+          )}
           <Typography variant="h6" color="primary" sx={{ mt: 2 }}>
             {visitorData.message}
           </Typography>

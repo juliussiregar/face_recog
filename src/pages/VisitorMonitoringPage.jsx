@@ -76,6 +76,8 @@ const VisitorMonitoringPage = () => {
           <TableHead>
             <TableRow>
               <TableCell>Full Name</TableCell>
+              <TableCell>Meeting Time</TableCell>
+              <TableCell>Meeting Room</TableCell>
               <TableCell>Company</TableCell>
               <TableCell>Clock-In Time</TableCell>
               <TableCell>Clock-Out Time</TableCell>
@@ -88,6 +90,24 @@ const VisitorMonitoringPage = () => {
               visitors.map((visitor) => (
                 <TableRow key={visitor.id}>
                   <TableCell>{visitor.full_name}</TableCell>
+                  <TableCell>
+                    {visitor.clock_in_time
+                      ? new Date(
+                          new Date(visitor.clock_in_time).getTime() + 60 * 60 * 1000
+                        ).toLocaleTimeString('en-GB', {
+                          hour: '2-digit',
+                          minute: '2-digit',
+                        })
+                      : 'N/A'} - {visitor.clock_in_time
+                        ? new Date(
+                            new Date(visitor.clock_in_time).getTime() + 60 * 60 * 2500
+                          ).toLocaleTimeString('en-GB', {
+                            hour: '2-digit',
+                            minute: '2-digit',
+                          })
+                        : 'N/A'}
+                  </TableCell>
+                  <TableCell align='center'>{"Room 1"}</TableCell>
                   <TableCell>{visitor.company_name}</TableCell>
                   <TableCell>{visitor.clock_in_time || 'N/A'}</TableCell>
                   <TableCell>{visitor.clock_out_time || 'Still visiting'}</TableCell>

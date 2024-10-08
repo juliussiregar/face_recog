@@ -80,7 +80,7 @@ const Register = ({ onRegister }) => {
     if (!formData.address) newErrors.address = 'Address is required';
     if (!formData.companyName) newErrors.companyName = 'Company name is required';
     if (!formData.email) newErrors.email = 'Email is required';
-    if (!imageSrc) newErrors.image = 'Please capture a image';
+    if (!imageSrc) newErrors.image = 'Please capture an image';
     return newErrors;
   };
 
