@@ -1,3 +1,4 @@
+// src/components/Header.js
 import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import Button from '@mui/material/Button';
@@ -33,7 +34,7 @@ const Header = () => {
           </Button>
           <Button
             component={Link}
-            to="/visitor-monitoring" // Changed from visitor-management to visitor-monitoring
+            to="/visitor-monitoring"
             variant="outlined"
             color="primary"
             sx={{ mx: 1 }}
@@ -49,9 +50,18 @@ const Header = () => {
           >
             Check In / Check Out
           </Button>
+          <Button
+            component={Link}
+            to="/cctv" // Add link to CCTV page
+            variant="outlined"
+            color="primary"
+            sx={{ mx: 1 }}
+          >
+            CCTV
+          </Button>
           {isLoggedIn ? (
             <Button
-              onClick={handleLogout} // Changed to onClick for logout
+              onClick={handleLogout}
               variant="contained"
               color="primary"
               sx={{ mx: 1 }}
