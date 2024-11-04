@@ -14,14 +14,12 @@ import useFaceRecognition from "../hooks/useFaceRecognition";
 
 const CCTV = () => {
     const [loading, setLoading] = useState(false);
-    const [visitorData, setVisitorData] = useState(null);
     const [modelsLoaded, setModelsLoaded] = useState(false);
     const [faceSnapshots, setFaceSnapshots] = useState([]);
-    const [currentVisitorName, setCurrentVisitorName] = useState(null);
+    const [visitorNames, setVisitorNames] = useState({});
     const webcamRef = useRef(null);
     const canvasRef = useRef(null);
     const lastDescriptors = useRef([]);
-    const snapshotDataArrayRef = useRef([]);
     const faceNameMapRef = useRef(new Map());
     const animationFrameRef = useRef(null);
     const processingRef = useRef(false);
@@ -42,46 +40,69 @@ const CCTV = () => {
         };
     }, []);
 
+    const isFaceClearAndLargeEnough = (width, height) => {
+        const minFaceSize = 100;
+        return width >= minFaceSize && height >= minFaceSize;
+    };
+
+    // Function to check and store visitor names in local storage
+    const checkLocalStorageForVisitor = (descriptorKey) => {
+        const storedVisitors = JSON.parse(localStorage.getItem("visitorNames")) || {};
+        return storedVisitors[descriptorKey] || null;
+    };
+
+    const storeVisitorInLocalStorage = (descriptorKey, visitorName) => {
+        const storedVisitors = JSON.parse(localStorage.getItem("visitorNames")) || {};
+        storedVisitors[descriptorKey] = visitorName;
+        localStorage.setItem("visitorNames", JSON.stringify(storedVisitors));
+    };
+
     const debouncedIdentifyFace = useRef(
         debounce(async (base64Image, snapshotId, descriptor) => {
             if (processingRef.current) return;
             processingRef.current = true;
             setLoading(true);
 
-            try {
-                const response = await handleIdentifyFace(base64Image);
-                if (response && response.visitor) {
-                    const visitorName = response.visitor.fullName;
-                    faceNameMapRef.current.set(descriptor.toString(), visitorName);
-                    setCurrentVisitorName(visitorName);
-                    setVisitorData(response.visitor);
+            const descriptorKey = descriptor.toString();
+            let visitorName = checkLocalStorageForVisitor(descriptorKey);
+
+            if (visitorName) {
+                // If visitor is found in local storage, update the state and map
+                faceNameMapRef.current.set(descriptorKey, visitorName);
+                setVisitorNames(prevNames => ({
+                    ...prevNames,
+                    [snapshotId]: visitorName
+                }));
+            } else {
+                // If not in local storage, call API
+                try {
+                    const response = await handleIdentifyFace(base64Image);
+                    visitorName = response && response.visitor ? response.visitor.fullName : "Unrecognized";
+                    
+                    // Update both local storage and in-memory map
+                    storeVisitorInLocalStorage(descriptorKey, visitorName);
+                    faceNameMapRef.current.set(descriptorKey, visitorName);
+
+                    setVisitorNames(prevNames => ({
+                        ...prevNames,
+                        [snapshotId]: visitorName
+                    }));
 
                     setFaceSnapshots(prevSnapshots =>
                         prevSnapshots.map(snapshot =>
                             snapshot.id === snapshotId
-                                ? { ...snapshot, visitorName: visitorName }
+                                ? { ...snapshot, visitorName }
                                 : snapshot
                         )
                     );
-                } else {
-                    faceNameMapRef.current.set(descriptor.toString(), "Unrecognized");
-                    setCurrentVisitorName("Unrecognized");
-
-                    setFaceSnapshots(prevSnapshots =>
-                        prevSnapshots.map(snapshot =>
-                            snapshot.id === snapshotId
-                                ? { ...snapshot, visitorName: "Unrecognized" }
-                                : snapshot
-                        )
-                    );
+                } catch (error) {
+                    console.error("Face identification error:", error);
+                } finally {
+                    setLoading(false);
+                    processingRef.current = false;
                 }
-            } catch (error) {
-                console.error("Face identification error:", error);
-            } finally {
-                setLoading(false);
-                processingRef.current = false;
             }
-        }, 300)
+        }, 100)
     ).current;
 
     const handleFaceDetection = async () => {
@@ -103,24 +124,23 @@ const CCTV = () => {
                 console.error("Face detection error:", error);
             }
         }
-        animationFrameRef.current = requestAnimationFrame(handleFaceDetection);
+        animationFrameRef.current = requestAnimationFrame(() => {
+            setTimeout(() => handleFaceDetection(), 100);
+        });
     };
 
     const handleFaceDetected = (x, y, width, height, descriptor) => {
-        if (!webcamRef.current || processingRef.current) return;
+        if (!isFaceClearAndLargeEnough(width, height)) {
+            console.log("Face is too small or unclear, skipping screenshot.");
+            return;
+        }
 
         const snapshotData = {
             ...captureFaceSnapshot(webcamRef.current.video, x, y, width, height),
             id: Date.now(),
             visitorName: "Processing..."
         };
-
-        // Keep only last 20 snapshots in memory
-        snapshotDataArrayRef.current = [
-            ...snapshotDataArrayRef.current.slice(-19),
-            snapshotData
-        ];
-
+        
         const cleanBase64 = processSnapshotData(snapshotData);
         debouncedIdentifyFace(cleanBase64.base64, snapshotData.id, descriptor);
 
@@ -144,7 +164,7 @@ const CCTV = () => {
         <Box
             p={4}
             display="flex"
-            flexDirection="row"
+            flexDirection={{ xs: "column", md: "row" }}
             alignItems="flex-start"
             gap={4}
             sx={{ bgcolor: "#f4f6f8", minHeight: "100vh" }}
@@ -153,7 +173,7 @@ const CCTV = () => {
                 elevation={3}
                 sx={{
                     position: "relative",
-                    width: "640px",
+                    width: { xs: "100%", md: "640px" },
                     height: "480px",
                     borderRadius: "12px",
                     overflow: "hidden",
@@ -168,7 +188,7 @@ const CCTV = () => {
                         p: 2,
                         bgcolor: "#1976d2",
                         color: "white",
-                        height: "40px", // Fixed height for title
+                        height: "40px",
                         display: "flex",
                         alignItems: "center",
                         justifyContent: "center"
@@ -180,7 +200,7 @@ const CCTV = () => {
                     sx={{
                         position: "relative",
                         width: "100%",
-                        height: "calc(100% - 40px)", // Subtract title height
+                        height: "calc(100% - 40px)",
                         overflow: "hidden"
                     }}
                 >
@@ -190,7 +210,7 @@ const CCTV = () => {
                         screenshotFormat="image/jpeg"
                         videoConstraints={{
                             width: 640,
-                            height: 440, // Adjusted height
+                            height: 440,
                             facingMode: "user",
                             frameRate: 30
                         }}
@@ -215,28 +235,29 @@ const CCTV = () => {
                 </Box>
             </Paper>
 
-            {visitorData && (
-                <Paper sx={{ p: 2, mb: 2 }}>
-                    <Typography variant="h6">
-                        Visitor: {currentVisitorName}
-                    </Typography>
-                </Paper>
-            )}
-
             <Box flex={1} p={2} sx={{ overflowY: "auto", maxHeight: "480px" }}>
                 <Typography variant="h6" color="primary" gutterBottom textAlign="center">
-                    Captured Faces ({snapshotDataArrayRef.current.length})
+                    Captured Faces ({faceSnapshots.length})
                 </Typography>
                 <Grid container spacing={1}>
                     {faceSnapshots.length > 0 ? (
                         faceSnapshots.slice(-20).map((snapshot, index) => (
-                            <Grid item xs={4} sm={3} md={2} key={snapshot.id || index}>
+                            <Grid
+                                item
+                                xs={12} sm={6} md={4} lg={3}
+                                key={snapshot.id || index}
+                                sx={{
+                                    display: "flex",
+                                    justifyContent: "center",
+                                }}
+                            >
                                 <Box
                                     sx={{
                                         borderRadius: "8px",
                                         overflow: "hidden",
                                         boxShadow: 2,
                                         width: "100%",
+                                        maxWidth: { xs: "160px", sm: "140px", md: "120px" },
                                         bgcolor: "grey.200",
                                     }}
                                 >
@@ -265,7 +286,7 @@ const CCTV = () => {
                                                 color: snapshot.visitorName === "Unrecognized" ? "error.main" : "primary.main"
                                             }}
                                         >
-                                            {snapshot.visitorName}
+                                            {visitorNames[snapshot.id] || snapshot.visitorName}
                                         </Typography>
                                     </Box>
                                 </Box>
